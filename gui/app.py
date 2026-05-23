@@ -153,6 +153,14 @@ class ResultCard(ttk.Frame):
                               foreground=COLORS['highlight_fg'])
         self._apply_highlights(preview)
 
+        # 预览区独立滚动（不触发外层 Canvas 滚动）
+        preview.bind('<MouseWheel>',
+                     lambda e: self._preview_wheel(e, preview))
+        preview.bind('<Button-4>',
+                     lambda e: preview.yview_scroll(-1, 'units'))
+        preview.bind('<Button-5>',
+                     lambda e: preview.yview_scroll(1, 'units'))
+
         if is_file and path:
             for w in (inner, top_row, preview):
                 w.bind('<Button-3>',
@@ -171,6 +179,12 @@ class ResultCard(ttk.Frame):
             end_pos = f'{pos} + {len(kw)} chars'
             text_widget.tag_add('hl', pos, end_pos)
             start = end_pos
+
+    @staticmethod
+    def _preview_wheel(event, text_widget):
+        """预览区滚轮：滚动自身内容，阻止外层 Canvas 滚动"""
+        text_widget.yview_scroll(int(-1 * (event.delta / 120)), 'units')
+        return 'break'
 
     def _context_menu(self, event, file_path):
         if not os.path.exists(file_path):
@@ -700,13 +714,19 @@ class MainWindow(tk.Tk):
             self.result_canvas.unbind_all('<Button-5>')
 
     def _on_mw(self, event):
+        if isinstance(event.widget, tk.Text):
+            return
         self.result_canvas.yview_scroll(
             int(-1 * (event.delta / 120)), 'units')
 
     def _on_mw_up(self, event):
+        if isinstance(event.widget, tk.Text):
+            return
         self.result_canvas.yview_scroll(-1, 'units')
 
     def _on_mw_down(self, event):
+        if isinstance(event.widget, tk.Text):
+            return
         self.result_canvas.yview_scroll(1, 'units')
 
     # ======================================
@@ -880,6 +900,7 @@ class MainWindow(tk.Tk):
         self.result_canvas.yview_moveto(0)
 
     def _clear_results(self):
+        self._pending_cards = []
         for child in self.cards_frame.winfo_children():
             child.destroy()
 
@@ -902,11 +923,25 @@ class MainWindow(tk.Tk):
                  fg=COLORS['text_muted']).pack(pady=(8, 0))
 
     def _render_results(self, results, keyword):
-        for res in results:
-            card = ResultCard(self.cards_frame, res, keyword,
+        """分批渐进渲染，避免一次性创建大量控件卡顿 UI"""
+        self._pending_cards = list(results)
+        self._card_keyword = keyword
+        self._card_idx = 0
+        self._render_batch()
+
+    def _render_batch(self):
+        batch_size = 8
+        for _ in range(batch_size):
+            if self._card_idx >= len(self._pending_cards):
+                return
+            res = self._pending_cards[self._card_idx]
+            card = ResultCard(self.cards_frame, res, self._card_keyword,
                               on_open_file=self.open_file,
                               on_open_folder=self.open_folder)
             card.pack(fill=tk.X, padx=16, pady=(0, 10))
+            self._card_idx += 1
+        # 下一批
+        self.after(1, self._render_batch)
 
     # ======================================
     #  文件操作

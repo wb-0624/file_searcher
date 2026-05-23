@@ -179,13 +179,14 @@ def search(session, keyword, archive_id=None):
         q = q.filter_by(archive_id=archive_id)
 
     entries = q.all()
+    kw_lower = keyword.lower()
     logger.debug(f"搜索到 {len(entries)} 条记录")
 
     results = []
     for entry in entries:
         if entry.content:
             context = extract_context(entry.content, keyword, window=50)
-            match_count = entry.content.lower().count(keyword.lower())
+            match_count = entry.content.lower().count(kw_lower)
         else:
             context = f'[文件名匹配: {entry.source_name}]'
             match_count = 0
