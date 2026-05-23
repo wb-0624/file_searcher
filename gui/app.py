@@ -21,21 +21,21 @@ logger = logging.getLogger(__name__)
 #  设计常量
 # ==========================================
 COLORS = {
-    'bg':            '#F1F5F9',
+    'bg':            '#F5F5F5',
     'surface':       '#FFFFFF',
-    'sidebar_bg':    '#F8FAFC',
-    'primary':       '#3B82F6',
-    'primary_dark':  '#2563EB',
-    'primary_light': '#EFF6FF',
-    'text':          '#1E293B',
-    'text_secondary':'#64748B',
-    'text_muted':    '#94A3B8',
-    'border':        '#E2E8F0',
-    'success':       '#10B981',
-    'error':         '#EF4444',
-    'highlight_bg':  '#FEF08A',
-    'highlight_fg':  '#B91C1C',
-    'active_item':   '#DBEAFE',
+    'sidebar_bg':    '#F0F0F0',
+    'primary':       '#0078D4',
+    'primary_dark':  '#106EBE',
+    'primary_light': '#E8F4FD',
+    'text':          '#1A1A1A',
+    'text_secondary':'#605E5C',
+    'text_muted':    '#8A8886',
+    'border':        '#E1DFDD',
+    'success':       '#107C10',
+    'error':         '#D13438',
+    'highlight_bg':  '#FFF4CE',
+    'highlight_fg':  '#A80000',
+    'active_item':   '#D0E4F7',
 }
 
 FONTS = {
@@ -193,7 +193,7 @@ class ResultCard(ttk.Frame):
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('文件内容搜索工具')
+        self.title('觅文')
         self.geometry('1060x700')
         self.minsize(850, 520)
         self.configure(bg=COLORS['bg'])
@@ -249,7 +249,7 @@ class MainWindow(tk.Tk):
         header.pack(fill=tk.X)
         left = ttk.Frame(header, style='Header.TFrame')
         left.pack(side=tk.LEFT, padx=20, pady=10)
-        ttk.Label(left, text='文件内容搜索工具',
+        ttk.Label(left, text='觅文',
                   style='HeaderTitle.TLabel').pack(side=tk.LEFT)
         right = ttk.Frame(header, style='Header.TFrame')
         right.pack(side=tk.RIGHT, padx=12, pady=10)
@@ -634,13 +634,13 @@ class MainWindow(tk.Tk):
                  bg=COLORS['bg'],
                  fg=COLORS['primary']).pack(pady=(0, 8))
 
-        tk.Label(self.welcome_frame, text='文件内容搜索工具',
-                 font=('Microsoft YaHei UI', 22, 'bold'),
+        tk.Label(self.welcome_frame, text='觅文',
+                 font=('Microsoft YaHei UI', 28, 'bold'),
                  bg=COLORS['bg'],
                  fg=COLORS['text']).pack()
 
         tk.Label(self.welcome_frame,
-                 text='添加归档后即可搜索文档内容',
+                 text='文档搜索，一觅即中',
                  font=FONTS['body'], bg=COLORS['bg'],
                  fg=COLORS['text_secondary']).pack(pady=(4, 0))
 
